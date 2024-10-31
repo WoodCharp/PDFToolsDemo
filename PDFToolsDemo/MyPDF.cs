@@ -20,7 +20,7 @@ namespace PDFToolsDemo
 
         #region Debug
 
-        private bool m_debug = false;
+        private bool m_debug = true;
 
         private void DebugSetColors(PdfPageBuilder page)
         {
@@ -174,7 +174,7 @@ namespace PDFToolsDemo
             else if (e.GetType() == typeof(TextElement)) DrawTextElement((TextElement)e, p, moveX, moveY);
             else if (e.GetType() == typeof(ImageElement)) DrawImageElement((ImageElement)e, p, moveX, moveY);
             else if (e.GetType() == typeof(PageNumberElement)) DrawPageNumberElement((PageNumberElement)e, p, moveX, moveY);
-            else if (e.GetType() == typeof(GridElement)) DrawTableElement((GridElement)e, p, moveX, moveY);
+            else if (e.GetType() == typeof(GridElement)) DrawGridElement((GridElement)e, p, moveX, moveY);
 
         }
 
@@ -366,7 +366,7 @@ namespace PDFToolsDemo
         }
 
 
-        private void DrawTableElement(GridElement e, PdfPageBuilder? p = null, double moveX = 0, double moveY = 0)
+        private void DrawGridElement(GridElement e, PdfPageBuilder? p = null, double moveX = 0, double moveY = 0)
         {
             PdfPageBuilder page = p != null ? p : m_page;
 
@@ -378,17 +378,12 @@ namespace PDFToolsDemo
 
                 foreach (var c in e.HeaderRow.Cells)
                 {
-                    if (m_debug)
-                    {
-                        DebugSetColors(page);
-                        page.DrawRectangle(new PdfPoint(x, m_drawY), c.Width, c.Height);
-                    }
-
                     PdfRectangle rect = new PdfRectangle(x, m_drawY, x + c.Width, m_drawY + c.Height);
+                    if (m_debug) DebugDrawRect(rect, page);
 
                     if (c.Content.GetType() == typeof(GridTextCell))
                     {
-                        DrawTableCellText((GridTextCell)c.Content, rect, page);
+                        DrawGridCellText((GridTextCell)c.Content, rect, page);
                     }
 
                     foreach (var l in c.Border.Lines)
@@ -405,21 +400,16 @@ namespace PDFToolsDemo
 
                 foreach (var c in row.Cells)
                 {
-                    if (m_debug)
-                    {
-                        DebugSetColors(page);
-                        page.DrawRectangle(new PdfPoint(x, m_drawY), c.Width, c.Height);
-                    }
-
                     PdfRectangle rect = new PdfRectangle(x, m_drawY, x + c.Width, m_drawY + c.Height);
+                    if (m_debug) DebugDrawRect(rect, page);
 
                     if (c.Content.GetType() == typeof(GridTextCell))
                     {
-                        DrawTableCellText((GridTextCell)c.Content, rect, page);
+                        DrawGridCellText((GridTextCell)c.Content, rect, page);
                     }
                     else if (c.Content.GetType() == typeof(GridImageCell))
                     {
-                        DrawTableCellImage((GridImageCell)c.Content, rect, page);
+                        DrawGridCellImage((GridImageCell)c.Content, rect, page);
                     }
 
                     foreach (var l in c.Border.Lines)
@@ -436,7 +426,7 @@ namespace PDFToolsDemo
             }
         }
     
-        private void DrawTableCellText(GridTextCell textCell, PdfRectangle rect, PdfPageBuilder page)
+        private void DrawGridCellText(GridTextCell textCell, PdfRectangle rect, PdfPageBuilder page)
         {
             if (string.IsNullOrEmpty(textCell.Text)) return;
 
@@ -459,7 +449,7 @@ namespace PDFToolsDemo
             page.AddText(textCell.Text, textCell.FontSize, new PdfPoint(x, y), textCell.Font);
         }
     
-        private void DrawTableCellImage(GridImageCell imageCell, PdfRectangle rect, PdfPageBuilder page)
+        private void DrawGridCellImage(GridImageCell imageCell, PdfRectangle rect, PdfPageBuilder page)
         {
             double x = rect.Left, y = rect.Bottom;
 
